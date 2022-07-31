@@ -26,6 +26,7 @@ public class ApiRequester {
     }
 
     private String getToken(String code, OauthProvider oauthProvider) {
+        System.out.println("check: " + oauthProvider.getTokenUrl());
         Map<String, Object> responseBody = WebClient.create()
                                                     .post()
                                                     .uri(oauthProvider.getTokenUrl())

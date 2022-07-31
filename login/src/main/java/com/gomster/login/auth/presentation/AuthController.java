@@ -19,6 +19,7 @@ public class AuthController {
     @GetMapping("/auth/{oauthProvider}/login/token")
     public ResponseEntity<TokenResponse> login(@PathVariable String oauthProvider, @RequestParam String code) {
         //Authorization code 를 넘김
+        System.out.println("check: " + code);
         LoginResponseDto loginResponseDto = authService.login(new LoginRequestDto(oauthProvider, code));
         System.out.println(loginResponseDto.getToken());
         return ResponseEntity.ok(TokenResponse.from(loginResponseDto));

@@ -3,6 +3,7 @@ package com.gomster.login.auth.application;
 import com.gomster.exception.oauth.NoSuchOAuthMemberException;
 import com.gomster.login.auth.application.dto.LoginRequestDto;
 import com.gomster.login.auth.application.dto.LoginResponseDto;
+import com.gomster.login.auth.domain.LoginMember;
 import com.gomster.login.auth.domain.OauthUserInfo;
 import com.gomster.login.auth.infrastructure.JwtProvider;
 import com.gomster.login.auth.infrastructure.OauthHandler;
@@ -26,9 +27,10 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         String oauthProvider = loginRequestDto.getOauthProvider();
+        System.out.println("oauth: " + loginRequestDto.getOauthProvider());
         OauthUserInfo userInfo = oauthHandler.getUserInfoFromCode(oauthProvider, loginRequestDto.getCode());
         String email = userInfo.getEmail();
-
+        System.out.println("email: " + email);
         Member member = memberRepository.findByEmailAndOauthProvider(email, oauthProvider)
                                         .orElseThrow(() -> new NoSuchOAuthMemberException(email));
 
@@ -38,15 +40,15 @@ public class AuthService {
         return response;
     }
 
-//    @Transactional(readOnly = true)
-//    public LoginMember findMemberByToken(String token) {
-//        if (!jwtProvider.isValidToken(token)) {
-//            return LoginMember.anonymous();
-//        }
-//
-//        String payLoad = jwtProvider.getPayLoad(token);
-//        Long id = Long.parseLong(payLoad);
-//        Member member = memberService.findById(id);
-//        return new LoginMember(member.getId());
-//    }
+    @Transactional(readOnly = true)
+    public LoginMember findMemberByToken(String token) {
+        if (!jwtProvider.isValidToken(token)) {
+            return LoginMember.anonymous();
+        }
+
+        String payLoad = jwtProvider.getPayLoad(token);
+        Long id = Long.parseLong(payLoad);
+        Member member = memberService.findById(id);
+        return new LoginMember(member.getId());
+    }
 }
