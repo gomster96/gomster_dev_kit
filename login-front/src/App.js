@@ -1,5 +1,12 @@
+import GoogleLoginButton from "./Component/GoogleLoginButton";
+import NaverLoginButton from "./Component/NaverLoginButton";
+
 function App() {
-    return <h1>ReactApp</h1>;
+    return (
+        <div>
+            <GoogleLoginButton />
+        </div>
+    );
 }
 
 export default App;
