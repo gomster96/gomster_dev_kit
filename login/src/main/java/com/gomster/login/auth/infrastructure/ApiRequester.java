@@ -3,7 +3,10 @@ package com.gomster.login.auth.infrastructure;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
+import com.gomster.exception.member.MemberNotFoundException;
 import com.gomster.exception.oauth.GetAccessTokenException;
 import com.gomster.exception.oauth.GetUserInfoException;
 import com.gomster.exception.oauth.UnableToGetOauthResponseException;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
@@ -26,26 +30,31 @@ public class ApiRequester {
     }
 
     private String getToken(String code, OauthProvider oauthProvider) {
-        System.out.println("check: " + oauthProvider.getTokenUrl());
+
         Map<String, Object> responseBody = WebClient.create()
-                                                    .post()
-                                                    .uri(oauthProvider.getTokenUrl())
-                                                    .headers(header -> {
-                                                        header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                                                        header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-                                                        header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
-                                                    })
-                                                    .bodyValue(tokenRequest(code, oauthProvider))
-                                                    .retrieve()
-                                                    .onStatus(HttpStatus::isError, response ->
-                                                            response.bodyToMono(String.class)
-                                                                    .flatMap(error -> Mono.error(new UnableToGetOauthResponseException(error))))
-                                                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-                                                    })
-                                                    .flux()
-                                                    .toStream()
-                                                    .findFirst()
-                                                    .orElseThrow(GetAccessTokenException::new);
+                                             .post()
+                                             .uri(oauthProvider.getTokenUrl())
+                                             .headers(header -> {
+                                                 header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                                                 header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+                                                 header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
+                                             })
+                                             .bodyValue(tokenRequest(code, oauthProvider))
+                                             .retrieve()
+                                             .onStatus(HttpStatus::isError, response ->
+                                                     response.bodyToMono(String.class)
+                                                             .flatMap(error -> Mono.error(new UnableToGetOauthResponseException(error))))
+                                             .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                                             })
+                                             .block();
+        //                                                    .flux()
+//                                                    .toStream()
+//                                                    .findFirst()
+//                                                    .orElseThrow(GetAccessTokenException::new);
+
+//        .flux.toStream() 에 결국 동기식 으로 진행된다는게 내부적으로 있다. -> 이럴거면 그냥 block()을 사용하는게 더 명시적임
+
+        if(Objects.isNull(responseBody)) throw new GetAccessTokenException();
         validateResponseBody(responseBody);
         return responseBody.get("access_token").toString();
     }

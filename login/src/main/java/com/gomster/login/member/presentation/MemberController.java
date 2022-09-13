@@ -26,14 +26,14 @@ public class MemberController {
     public ResponseEntity<TokenResponse> create(@RequestBody MemberCreateRequest request) {
 
         MemberCreateResponseDto responseDto = memberService.save(MemberCreateDto.from(request));
-        URI location = URI.create("/api/members/" + responseDto.getMemberId());
+        URI location = URI.create("/api/member/" + responseDto.getMemberId());
         return ResponseEntity.created(location)
                              .body(new TokenResponse(responseDto.getToken()));
     }
 
     @GetMapping
     @RequiredLogin
-    public ResponseEntity<Long> testLoginInterceptor(@Login LoginMember loginMember){
-        return ResponseEntity.ok(loginMember.getId());
+    public ResponseEntity<String> testLoginInterceptor(@Login LoginMember loginMember){
+        return ResponseEntity.ok(loginMember.getEmail());
     }
 }

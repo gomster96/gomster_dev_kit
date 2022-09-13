@@ -11,7 +11,7 @@ public class LoginMember {
     private static final LoginMember ANONYMOUS = new LoginMember();
 
     private Long id;
-
+    private String email;
     public static LoginMember anonymous() {
         return ANONYMOUS;
     }
