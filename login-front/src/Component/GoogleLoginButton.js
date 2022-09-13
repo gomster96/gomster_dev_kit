@@ -15,6 +15,11 @@ export default function GoogleLoginButton() {
             setLoading(true);
             axios.get(`${process.env.REACT_APP_SERVER}/api/auth/google/login/token?code=${code}`).then((res) => {
                 console.log(res);
+                const token = res.data.token;
+                const config = {
+                    headers: { Authorization: `Gomster ${token}` },
+                };
+                axios.get(`${process.env.REACT_APP_SERVER}/api/member`, config).then((res) => console.log(res));
             });
         }
     }, []);

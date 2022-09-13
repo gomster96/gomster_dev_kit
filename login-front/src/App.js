@@ -1,10 +1,11 @@
 import GoogleLoginButton from "./Component/GoogleLoginButton";
-import NaverLoginButton from "./Component/NaverLoginButton";
+import TestButton from "./Component/TestButton";
 
 function App() {
     return (
         <div>
             <GoogleLoginButton />
+            <TestButton />
         </div>
     );
 }
